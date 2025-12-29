@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SOPHIE</title>
     <style>
-        /* ПІДКЛЮЧЕННЯ ШРИФТУ LYNO */
         @font-face {
             font-family: 'Lyno';
-            /* якщо у тебе файл .ttf, зміни формат на format('truetype') і url('lyno.ttf') */
-            src: url('lyno.otf') format('opentype');
+            src: url('lyno.otf') format('opentype'); /* перевір назву файлу! */
             font-weight: normal;
             font-style: normal;
         }
@@ -29,21 +27,21 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            user-select: none; /* щоб не виділявся текст */
         }
 
-        /* 1. ГЛІТЧ З НОВИМ ШРИФТОМ */
+        /* 1. ГЛІТЧ */
         .glitch-wrapper {
             position: relative;
             display: inline-block;
             margin-bottom: 20px;
+            z-index: 10;
         }
 
         .glitch {
-            font-family: 'Lyno', sans-serif; /* тут тепер твій шрифт */
-            font-size: 40px; /* зробив трохи більшим, бо цей шрифт любить простір */
-            font-weight: normal;
+            font-family: 'Lyno', sans-serif;
+            font-size: 40px;
             text-transform: uppercase;
-            letter-spacing: 2px;
             position: relative;
             color: #fff;
         }
@@ -74,60 +72,34 @@
 
         @keyframes glitch-anim {
             0% { clip: rect(13px, 9999px, 88px, 0); }
-            20% { clip: rect(83px, 9999px, 13px, 0); }
-            40% { clip: rect(32px, 9999px, 93px, 0); }
-            60% { clip: rect(10px, 9999px, 49px, 0); }
-            80% { clip: rect(78px, 9999px, 20px, 0); }
             100% { clip: rect(45px, 9999px, 66px, 0); }
         }
-
         @keyframes glitch-anim-2 {
             0% { clip: rect(65px, 9999px, 100px, 0); }
             100% { clip: rect(10px, 9999px, 45px, 0); }
         }
 
-        /* ОБКЛАДИНКА */
+        /* 11. ЕФЕКТ ПЛАВЛЕННЯ (MELTING) */
         .cover-box {
             width: 300px;
             height: 300px;
             margin: 10px 0 30px;
             border: 1px solid #333;
             overflow: hidden;
+            transition: all 0.5s ease;
         }
 
         .cover-img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: filter 0.4s ease, transform 0.4s ease;
         }
 
-        /* ІНФО */
-        .info-area {
-            width: 100%;
-            max-width: 320px;
-            text-align: center;
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-
-        .marquee-container {
-            white-space: nowrap;
-            overflow: hidden;
-            box-sizing: border-box;
-        }
-
-        .track-name-display {
-            display: inline-block;
-            font-size: 16px;
-            font-weight: 700;
-            text-transform: uppercase;
-            padding-left: 100%;
-            animation: marquee 10s linear infinite;
-        }
-
-        @keyframes marquee {
-            0%   { transform: translate(0, 0); }
-            100% { transform: translate(-100%, 0); }
+        /* коли наводиш, картинка "пливе" */
+        .cover-box:hover .cover-img {
+            filter: blur(4px) contrast(150%) brightness(1.2);
+            transform: scale(1.05) rotate(2deg);
         }
 
         /* ВІЗУАЛІЗАТОР */
@@ -146,32 +118,42 @@
             height: 2px;
             transition: height 0.1s;
         }
-
-        .visualizer.active .bar {
-            animation: sound 0.5s infinite alternate;
-        }
-
+        .visualizer.active .bar { animation: sound 0.5s infinite alternate; }
         .bar:nth-child(1) { animation-delay: 0.1s; }
         .bar:nth-child(2) { animation-delay: 0.3s; }
         .bar:nth-child(3) { animation-delay: 0.0s; }
         .bar:nth-child(4) { animation-delay: 0.4s; }
         .bar:nth-child(5) { animation-delay: 0.2s; }
+        @keyframes sound { 0% { height: 2px; } 100% { height: 20px; } }
 
-        @keyframes sound {
-            0% { height: 2px; }
-            100% { height: 20px; }
-        }
-
-        /* ЛІЧИЛЬНИК З НОВИМ ШРИФТОМ */
+        /* ЛІЧИЛЬНИК */
         .counter {
             font-family: 'Lyno', sans-serif;
-            font-size: 14px; /* трохи збільшив */
+            font-size: 14px;
             color: #888;
             margin-bottom: 5px;
-            letter-spacing: 1px;
         }
 
-        /* ПРОГРЕС */
+        /* ІНФО */
+        .info-area {
+            width: 100%;
+            max-width: 320px;
+            text-align: center;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .marquee-container { white-space: nowrap; overflow: hidden; }
+        .track-name-display {
+            display: inline-block;
+            font-size: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding-left: 100%;
+            animation: marquee 10s linear infinite;
+        }
+        @keyframes marquee { 100% { transform: translate(-100%, 0); } }
+
+        /* ПРОГРЕС І 7. ТУЛТІП */
         .progress-box {
             width: 100%;
             max-width: 320px;
@@ -180,6 +162,7 @@
             display: flex;
             align-items: center;
             margin-bottom: 20px;
+            position: relative; /* для тултіпа */
         }
 
         .progress-bg {
@@ -194,8 +177,27 @@
             background: #fff;
             width: 0%;
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 0; left: 0;
+        }
+
+        /* стиль тултіпа */
+        .time-tooltip {
+            position: absolute;
+            top: -25px;
+            background: #fff;
+            color: #000;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: bold;
+            border-radius: 4px;
+            pointer-events: none; /* щоб не заважав клікати */
+            opacity: 0;
+            transition: opacity 0.1s;
+            font-family: 'Lyno', sans-serif;
+        }
+
+        .progress-box:hover .time-tooltip {
+            opacity: 1;
         }
 
         /* СПИСОК */
@@ -203,6 +205,7 @@
             width: 100%;
             max-width: 320px;
             border-top: 1px solid #333;
+            margin-bottom: 50px;
         }
 
         .track-row {
@@ -215,21 +218,43 @@
             text-transform: uppercase;
             transition: color 0.2s;
         }
-
-        .track-row span:first-child {
-            /* застосував lyno до цифр, щоб було стильно */
-            font-family: 'Lyno', sans-serif; 
-            letter-spacing: 1px;
-            font-size: 14px;
-        }
-
+        .track-row span:first-child { font-family: 'Lyno', sans-serif; font-size: 14px; }
         .track-row:hover { color: #888; }
         .track-row.active { color: #fff; }
         .track-row:not(.active) { color: #444; }
 
+        /* 10. СКРІНСЕЙВЕР */
+        #screensaver {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: none; /* прихований за замовчуванням */
+            overflow: hidden;
+            cursor: none; /* ховаємо курсор */
+        }
+
+        .saver-text {
+            position: absolute;
+            color: #fff;
+            font-family: 'Lyno', sans-serif;
+            font-size: 30px;
+            animation: float 5s infinite ease-in-out alternate;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(50px, 50px) rotate(10deg); }
+        }
+
     </style>
 </head>
 <body>
+
+    <div id="screensaver">
+        <div class="saver-text" id="saver-content">SOPHIE</div>
+    </div>
 
     <div class="glitch-wrapper">
         <div class="glitch" data-text="PRODUCT">PRODUCT</div>
@@ -255,6 +280,7 @@
         <div class="progress-bg">
             <div class="progress-fill" id="prog-fill"></div>
         </div>
+        <div class="time-tooltip" id="tooltip">0:00</div>
     </div>
 
     <div class="track-list" id="list"></div>
@@ -267,8 +293,11 @@
     const scrollTitle = document.getElementById('scrolling-title');
     const progFill = document.getElementById('prog-fill');
     const progBox = document.getElementById('prog-box');
+    const tooltip = document.getElementById('tooltip');
     const viz = document.getElementById('visualizer');
     const counterEl = document.getElementById('counter');
+    const saver = document.getElementById('screensaver');
+    const saverText = document.getElementById('saver-content');
 
     const songs = [
         "BIPP", "ELLE", "LEMONADE", "HARD", "MSMSMSM", "VYZEE", 
@@ -277,23 +306,87 @@
 
     let current = 0;
 
-    function vibe() {
-        if (navigator.vibrate) navigator.vibrate(30);
+    // 3. ЗВУКИ (СИНТЕЗАТОР)
+    // створюємо короткий "бліп" без зовнішніх файлів
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AudioContext();
+
+    function playHoverSound() {
+        if (ctx.state === 'suspended') ctx.resume();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.05);
+        
+        gain.gain.setValueAtTime(0.05, ctx.currentTime); // дуже тихо
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.05);
     }
 
+    function vibe() {
+        if (navigator.vibrate) navigator.vibrate(20);
+    }
+
+    // 10. СКРІНСЕЙВЕР ЛОГІКА
+    let idleTime = 0;
+    let saverActive = false;
+
+    // Скидання таймера при активності
+    function resetTimer() {
+        idleTime = 0;
+        if (saverActive) {
+            saver.style.display = 'none';
+            saverActive = false;
+        }
+    }
+
+    // Рухаємо напис скрінсейвера
+    function moveSaver() {
+        if (!saverActive) return;
+        const x = Math.random() * (window.innerWidth - 100);
+        const y = Math.random() * (window.innerHeight - 50);
+        saverText.style.left = x + 'px';
+        saverText.style.top = y + 'px';
+        saverText.innerText = songs[Math.floor(Math.random() * songs.length)]; // показує рандомну назву
+    }
+
+    // Перевірка кожну секунду
+    setInterval(() => {
+        idleTime++;
+        if (idleTime >= 10) { // 10 секунд бездіяльності
+            saver.style.display = 'block';
+            saverActive = true;
+            moveSaver();
+        }
+    }, 1000);
+
+    // Слухаємо події для скидання таймера
+    window.onmousemove = resetTimer;
+    window.onmousedown = resetTimer;
+    window.ontouchstart = resetTimer;
+    window.onclick = resetTimer;
+    window.onkeydown = resetTimer;
+
+    // РЕНДЕР СПИСКУ
     function render() {
         listEl.innerHTML = '';
         songs.forEach((name, i) => {
             const row = document.createElement('div');
             row.className = `track-row ${i === current ? 'active' : ''}`;
-            
-            // форматуємо номер 01, 02...
             const num = (i + 1).toString().padStart(2, '0');
             
-            // тут я прибрав назву шрифта з самої назви пісні, щоб вона була читабельна, 
-            // але залишив шрифт на цифрах через CSS
             row.innerHTML = `<span>${num}. ${name}</span><span>${i === current ? '●' : ''}</span>`;
+            
+            // додаємо звук при наведенні
+            row.onmouseenter = () => playHoverSound();
             row.onclick = () => { vibe(); play(i); };
+            
             listEl.appendChild(row);
         });
     }
@@ -306,7 +399,6 @@
 
         scrollTitle.innerText = name + " — SOPHIE — " + name + " — ";
         counterEl.innerText = `${num} / ${total}`;
-        
         document.title = `▶ ${name}`;
 
         audio.src = `${index + 1}.mp3`;
@@ -325,23 +417,31 @@
         }
     }
 
+    // 7. ТУЛТІП ЧАСУ
+    progBox.addEventListener('mousemove', (e) => {
+        const width = progBox.clientWidth;
+        const offsetX = e.offsetX;
+        const duration = audio.duration || 0;
+        
+        // рахуємо час
+        const hoverTime = (offsetX / width) * duration;
+        const mins = Math.floor(hoverTime / 60);
+        const secs = Math.floor(hoverTime % 60).toString().padStart(2, '0');
+        
+        // показуємо тултіп
+        tooltip.innerText = `${mins}:${secs}`;
+        tooltip.style.left = `${offsetX}px`;
+    });
+
     audio.addEventListener('timeupdate', () => {
         const p = (audio.currentTime / audio.duration) * 100;
         progFill.style.width = `${p || 0}%`;
     });
 
-    audio.addEventListener('ended', () => {
-        play((current + 1) % songs.length);
-    });
-
-    audio.addEventListener('pause', () => {
-        viz.classList.remove('active');
-        document.title = "SOPHIE — PRODUCT";
-    });
-
-    audio.addEventListener('play', () => {
-        viz.classList.add('active');
-    });
+    audio.addEventListener('ended', () => play((current + 1) % songs.length));
+    
+    audio.addEventListener('pause', () => { viz.classList.remove('active'); document.title = "SOPHIE"; });
+    audio.addEventListener('play', () => viz.classList.add('active'));
 
     progBox.addEventListener('click', (e) => {
         vibe();
