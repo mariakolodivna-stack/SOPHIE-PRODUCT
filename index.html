@@ -3,211 +3,342 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>sophie - product (black edition)</title>
+    <title>SOPHIE</title>
     <style>
         :root {
-            --accent-color: #ffffff;
-            --bg-black: #000000;
-            --track-item-bg: rgba(255, 255, 255, 0.1);
+            --accent: #ffffff;
+            --bg: #000000;
+            --glass: rgba(255, 255, 255, 0.1);
         }
 
         body {
             margin: 0;
             padding: 20px;
-            background-color: var(--bg-black);
-            color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--accent);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace; /* моноширинний шрифт для стилю */
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
         }
 
-        /* обкладинка */
-        .cover-container {
-            width: 320px;
-            height: 320px;
-            margin: 20px 0 30px;
-            border-radius: 20px;
+        /* 1. ГЛІТЧ ЕФЕКТ */
+        .glitch-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .glitch {
+            font-size: 28px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            position: relative;
+            color: #fff;
+        }
+
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+        }
+
+        .glitch::before {
+            left: 2px;
+            text-shadow: -1px 0 red;
+            clip: rect(24px, 550px, 90px, 0);
+            animation: glitch-anim-2 3s infinite linear alternate-reverse;
+        }
+
+        .glitch::after {
+            left: -2px;
+            text-shadow: -1px 0 blue;
+            clip: rect(85px, 550px, 140px, 0);
+            animation: glitch-anim 2.5s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% { clip: rect(13px, 9999px, 88px, 0); }
+            20% { clip: rect(83px, 9999px, 13px, 0); }
+            40% { clip: rect(32px, 9999px, 93px, 0); }
+            60% { clip: rect(10px, 9999px, 49px, 0); }
+            80% { clip: rect(78px, 9999px, 20px, 0); }
+            100% { clip: rect(45px, 9999px, 66px, 0); }
+        }
+
+        @keyframes glitch-anim-2 {
+            0% { clip: rect(65px, 9999px, 100px, 0); }
+            100% { clip: rect(10px, 9999px, 45px, 0); }
+        }
+
+        /* ОБКЛАДИНКА */
+        .cover-box {
+            width: 300px;
+            height: 300px;
+            margin: 30px 0;
+            border-radius: 0; /* квадратна для строгості */
+            border: 1px solid #333;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+            position: relative;
         }
 
         .cover-img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            display: block;
         }
 
-        .header-info {
+        /* ІНФО І БІЖУЧИЙ РЯДОК */
+        .info-area {
+            width: 100%;
+            max-width: 320px;
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
+            overflow: hidden; /* ховає текст що виїхав */
         }
 
-        .status-playing {
-            color: #888;
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: 3px;
+        .marquee-container {
+            white-space: nowrap;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .track-name-display {
+            display: inline-block;
+            font-size: 16px;
+            font-weight: 700;
             text-transform: uppercase;
+            padding-left: 100%; /* старт з права */
+            animation: marquee 10s linear infinite;
+        }
+
+        @keyframes marquee {
+            0%   { transform: translate(0, 0); }
+            100% { transform: translate(-100%, 0); }
+        }
+
+        /* 9. ВІЗУАЛІЗАТОР */
+        .visualizer {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            height: 20px;
+            gap: 3px;
             margin-bottom: 10px;
         }
 
-        .album-name-text {
-            font-size: 24px;
-            font-weight: 900;
-            text-transform: uppercase;
+        .bar {
+            width: 4px;
+            background: #fff;
+            height: 2px;
+            transition: height 0.1s;
+        }
+
+        .visualizer.active .bar {
+            animation: sound 0.5s infinite alternate;
+        }
+
+        .bar:nth-child(1) { animation-delay: 0.1s; }
+        .bar:nth-child(2) { animation-delay: 0.3s; }
+        .bar:nth-child(3) { animation-delay: 0.0s; }
+        .bar:nth-child(4) { animation-delay: 0.4s; }
+        .bar:nth-child(5) { animation-delay: 0.2s; }
+
+        @keyframes sound {
+            0% { height: 2px; }
+            100% { height: 20px; }
+        }
+
+        /* 18. ЛІЧИЛЬНИК */
+        .counter {
+            font-size: 10px;
+            color: #666;
+            margin-bottom: 5px;
             letter-spacing: 2px;
         }
 
-        /* список треків */
-        .playlist-box {
+        /* ПРОГРЕС */
+        .progress-box {
             width: 100%;
-            max-width: 360px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .track-row {
-            background: var(--track-item-bg);
-            padding: 18px 25px;
-            border-radius: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            max-width: 320px;
+            height: 20px; /* зона кліку більша */
             cursor: pointer;
-            transition: 0.2s;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .track-row.active {
-            background: #ffffff;
-            color: #000000;
-        }
-
-        .track-title {
-            font-weight: 700;
-            font-size: 13px;
-            text-transform: uppercase;
-        }
-
-        /* прогрес-бар */
-        .progress-wrapper {
-            width: 100%;
-            max-width: 360px;
-            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
         }
 
         .progress-bg {
             width: 100%;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            cursor: pointer;
+            height: 2px;
+            background: #333;
+            position: relative;
         }
 
         .progress-fill {
             height: 100%;
-            background: var(--accent-color);
+            background: #fff;
             width: 0%;
-            border-radius: 10px;
+            position: absolute;
+            top: 0;
+            left: 0;
         }
+
+        /* СПИСОК */
+        .track-list {
+            width: 100%;
+            max-width: 320px;
+            border-top: 1px solid #333;
+        }
+
+        .track-row {
+            padding: 15px 0;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            cursor: pointer;
+            font-size: 12px;
+            text-transform: uppercase;
+            transition: color 0.2s;
+        }
+
+        .track-row:hover { color: #888; }
+        .track-row.active { color: #fff; font-weight: bold; }
+        .track-row:not(.active) { color: #444; }
+
     </style>
 </head>
 <body>
 
-    <div class="cover-container">
-        <img src="1.jpg" id="main-art" class="cover-img" alt="sophie album">
+    <div class="glitch-wrapper">
+        <div class="glitch" data-text="PRODUCT">PRODUCT</div>
     </div>
 
-    <div class="header-info">
-        <div class="status-playing" id="playing-now">playing: bipp</div>
-        <div class="album-name-text">product</div>
+    <div class="cover-box">
+        <img src="1.jpg" class="cover-img" alt="cover">
     </div>
 
-    <div class="progress-wrapper">
-        <div class="progress-bg" id="bar-bg">
-            <div class="progress-fill" id="bar-fill"></div>
+    <div class="visualizer" id="visualizer">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    </div>
+
+    <div class="counter" id="counter">TRACK 01 / 11</div>
+
+    <div class="info-area">
+        <div class="marquee-container">
+            <span class="track-name-display" id="scrolling-title">BIPP</span>
         </div>
     </div>
 
-    <div class="playlist-box" id="tracks-list">
+    <div class="progress-box" id="prog-box">
+        <div class="progress-bg">
+            <div class="progress-fill" id="prog-fill"></div>
         </div>
+    </div>
 
-    <audio id="audio-player"></audio>
+    <div class="track-list" id="list"></div>
+
+    <audio id="audio"></audio>
 
 <script>
-    const audio = document.getElementById('audio-player');
-    const list = document.getElementById('tracks-list');
-    const status = document.getElementById('playing-now');
-    const fill = document.getElementById('bar-fill');
-    const bg = document.getElementById('bar-bg');
+    const audio = document.getElementById('audio');
+    const listEl = document.getElementById('list');
+    const scrollTitle = document.getElementById('scrolling-title');
+    const progFill = document.getElementById('prog-fill');
+    const progBox = document.getElementById('prog-box');
+    const viz = document.getElementById('visualizer');
+    const counterEl = document.getElementById('counter');
 
     const songs = [
-        "bipp", "elle", "lemonade", "hard", "msmsmsm", "vyzee", 
-        "l.o.v.e.", "unisil", "get higher", "ooh", "just like we never said goodbye"
+        "BIPP", "ELLE", "LEMONADE", "HARD", "MSMSMSM", "VYZEE", 
+        "L.O.V.E.", "UNISIL", "GET HIGHER", "OOH", "JUST LIKE WE NEVER SAID GOODBYE"
     ];
 
-    let currentIdx = 0;
+    let current = 0;
 
-    function draw() {
-        list.innerHTML = '';
+    // 15. ВІБРАЦІЯ
+    function vibe() {
+        if (navigator.vibrate) navigator.vibrate(30); // 30 мілісекунд бззз
+    }
+
+    function render() {
+        listEl.innerHTML = '';
         songs.forEach((name, i) => {
-            const div = document.createElement('div');
-            div.className = `track-row ${i === currentIdx ? 'active' : ''}`;
-            div.innerHTML = `
-                <span class="track-title">${i + 1}. ${name}</span>
-                <span>${i === currentIdx ? '■' : '▶'}</span>
-            `;
-            div.onclick = () => start(i);
-            list.appendChild(div);
+            const row = document.createElement('div');
+            row.className = `track-row ${i === current ? 'active' : ''}`;
+            
+            // форматуємо номер 01, 02...
+            const num = (i + 1).toString().padStart(2, '0');
+            
+            row.innerHTML = `<span>${num}. ${name}</span><span>${i === current ? '●' : ''}</span>`;
+            row.onclick = () => { vibe(); play(i); };
+            listEl.appendChild(row);
         });
     }
 
-    function start(idx) {
-        currentIdx = idx;
-        const name = songs[idx];
+    function play(index) {
+        current = index;
+        const name = songs[index];
+        const num = (index + 1).toString().padStart(2, '0');
+        const total = songs.length.toString().padStart(2, '0');
+
+        // Оновлення тексту
+        scrollTitle.innerText = name + " — SOPHIE — " + name + " — "; // дублюємо для краси бігу
+        counterEl.innerText = `TRACK ${num} / ${total}`;
         
-        status.innerText = `playing: ${name}`;
-        audio.src = `${idx + 1}.mp3`;
+        // 13. ЗМІНА ЗАГОЛОВКА ВКЛАДКИ
+        document.title = `▶ ${name} — SOPHIE`;
+
+        audio.src = `${index + 1}.mp3`;
         audio.play();
         
-        draw();
-        
+        viz.classList.add('active'); // вмикаємо візуалізатор
+        render();
+
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: name,
-                artist: 'sophie',
-                album: 'product',
+                artist: 'SOPHIE',
+                album: 'Product',
                 artwork: [{ src: '1.jpg', sizes: '512x512', type: 'image/jpeg' }]
             });
         }
     }
 
+    // Аудіо події
     audio.addEventListener('timeupdate', () => {
         const p = (audio.currentTime / audio.duration) * 100;
-        fill.style.width = `${p || 0}%`;
+        progFill.style.width = `${p || 0}%`;
     });
 
-    bg.addEventListener('click', (e) => {
-        audio.currentTime = (e.offsetX / bg.clientWidth) * audio.duration;
+    audio.addEventListener('ended', () => {
+        play((current + 1) % songs.length);
     });
 
-    audio.addEventListener('ended', () => start((currentIdx + 1) % songs.length));
+    audio.addEventListener('pause', () => {
+        viz.classList.remove('active'); // стоп візуалізатор
+        document.title = "SOPHIE — PRODUCT";
+    });
 
-    // запуск
-    draw();
-    audio.src = `1.mp3`;
+    audio.addEventListener('play', () => {
+        viz.classList.add('active');
+    });
 
-    if ('mediaSession' in navigator) {
-        navigator.mediaSession.setActionHandler('play', () => audio.play());
-        navigator.mediaSession.setActionHandler('pause', () => audio.pause());
-        navigator.mediaSession.setActionHandler('previoustrack', () => start((currentIdx - 1 + songs.length) % songs.length));
-        navigator.mediaSession.setActionHandler('nexttrack', () => start((currentIdx + 1) % songs.length));
-    }
+    progBox.addEventListener('click', (e) => {
+        vibe();
+        const width = progBox.clientWidth;
+        audio.currentTime = (e.offsetX / width) * audio.duration;
+    });
+
+    // Старт
+    render();
+    // Ініціалізація без автовідтворення
+    scrollTitle.innerText = songs[0];
 </script>
 
 </body>
