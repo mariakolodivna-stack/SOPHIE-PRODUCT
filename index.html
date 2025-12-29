@@ -1,1 +1,235 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOPHIE - PRODUCT</title>
+    <style>
+        :root {
+            --pink: #ff69b4;
+            --glass: rgba(255, 255, 255, 0.15);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', sans-serif;
+            /* анімований фон */
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            color: white;
+            overflow: hidden;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* картка рідке скло */
+        .player-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 40px;
+            padding: 40px;
+            width: 320px;
+            text-align: center;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .cover {
+            width: 220px;
+            height: 220px;
+            background: url('./1.jpg') center/cover no-repeat;
+            margin: 0 auto 25px;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .player-card:hover .cover {
+            transform: scale(1.03);
+        }
+
+        h2 { margin: 10px 0 5px; font-weight: 700; font-size: 1.4rem; letter-spacing: 1px; }
+        p { margin: 0 0 25px; opacity: 0.7; font-size: 0.85rem; text-transform: uppercase; }
+
+        /* маленький повзунок */
+        .progress-container {
+            width: 100%;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--pink);
+            width: 0%;
+            box-shadow: 0 0 10px var(--pink);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 28px;
+            opacity: 0.8;
+            transition: 0.2s;
+        }
+
+        .btn:hover { opacity: 1; transform: scale(1.1); }
+
+        .play-btn {
+            width: 65px;
+            height: 65px;
+            background: white;
+            color: #e73c7e;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+<div class="player-card">
+    <div class="cover"></div>
+    <div class="info">
+        <h2 id="title">Завантаження...</h2>
+        <p>SOPHIE — PRODUCT</p>
+    </div>
+
+    <div class="progress-container" id="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="controls">
+        <button class="btn" id="prev">⏮</button>
+        <button class="btn play-btn" id="play">▶</button>
+        <button class="btn" id="next">⏭</button>
+    </div>
+</div>
+
+<audio id="audio"></audio>
+
+<script>
+    const audio = document.getElementById('audio');
+    const playBtn = document.getElementById('play');
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+    const progressBar = document.getElementById('progress-bar');
+    const progressContainer = document.getElementById('progress-container');
+    const title = document.getElementById('title');
+
+    // список треків відповідно до твоїх назв 1.mp3, 2.mp3...
+    const tracks = [
+        { name: 'BIPP', file: '1.mp3' },
+        { name: 'ELLE', file: '2.mp3' },
+        { name: 'LEMONADE', file: '3.mp3' },
+        { name: 'HARD', file: '4.mp3' },
+        { name: 'MSMSMSM', file: '5.mp3' },
+        { name: 'VYZEE', file: '6.mp3' },
+        { name: 'L.O.V.E.', file: '7.mp3' },
+        { name: 'JUST LIKE WE NEVER SAID GOODBYE', file: '8.mp3' }
+    ];
+
+    let trackIndex = 0;
+    let isPlaying = false;
+
+    function loadTrack(index) {
+        const track = tracks[index];
+        title.innerText = track.name;
+        audio.src = `./${track.file}`;
+        
+        // оновлюємо метадані шо бачить телефон/браузер
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: track.name,
+                artist: 'SOPHIE',
+                album: 'Product',
+                artwork: [{ src: './1.jpg', sizes: '512x512', type: 'image/jpeg' }]
+            });
+        }
+    }
+
+    function playTrack() {
+        isPlaying = true;
+        audio.play();
+        playBtn.innerText = '⏸';
+    }
+
+    function pauseTrack() {
+        isPlaying = false;
+        audio.pause();
+        playBtn.innerText = '▶';
+    }
+
+    playBtn.addEventListener('click', () => {
+        isPlaying ? pauseTrack() : playTrack();
+    });
+
+    prevBtn.addEventListener('click', () => {
+        trackIndex = (trackIndex - 1 + tracks.length) % tracks.length;
+        loadTrack(trackIndex);
+        playTrack();
+    });
+
+    nextBtn.addEventListener('click', () => {
+        trackIndex = (trackIndex + 1) % tracks.length;
+        loadTrack(trackIndex);
+        playTrack();
+    });
+
+    audio.addEventListener('timeupdate', () => {
+        const { duration, currentTime } = audio;
+        const progressPercent = (currentTime / duration) * 100;
+        progressBar.style.width = `${progressPercent}%`;
+    });
+
+    progressContainer.addEventListener('click', (e) => {
+        const width = progressContainer.clientWidth;
+        const clickX = e.offsetX;
+        audio.currentTime = (clickX / width) * audio.duration;
+    });
+
+    // автоперехід на наступний трек
+    audio.addEventListener('ended', () => nextBtn.click());
+
+    // фонове керування
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.setActionHandler('play', playTrack);
+        navigator.mediaSession.setActionHandler('pause', pauseTrack);
+        navigator.mediaSession.setActionHandler('previoustrack', () => prevBtn.click());
+        navigator.mediaSession.setActionHandler('nexttrack', () => nextBtn.click());
+    }
+
+    // ініціалізація
+    loadTrack(trackIndex);
+</script>
+
+</body>
+</html>
 
