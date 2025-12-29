@@ -89,6 +89,7 @@
             border: 1px solid #333;
             overflow: hidden;
             transition: all 0.5s ease;
+            cursor: pointer; /* Додав курсор, щоб видно було, що клікабельно */
         }
 
         .cover-img {
@@ -103,6 +104,18 @@
             filter: blur(4px) contrast(150%) brightness(1.2);
             transform: scale(1.05) rotate(2deg);
         }
+
+        /* Клас для ефекту відкриття секрету */
+        .cover-box.secret-reveal {
+            animation: flash-invert 0.3s linear;
+        }
+
+        @keyframes flash-invert {
+            0% { filter: invert(0); }
+            50% { filter: invert(1); }
+            100% { filter: invert(0); }
+        }
+
 
         /* 3. ВІЗУАЛІЗАТОР */
         .visualizer {
@@ -217,12 +230,23 @@
             cursor: pointer;
             font-size: 12px;
             text-transform: uppercase;
-            transition: color 0.2s;
+            transition: color 0.2s, background 0.3s;
         }
         .track-row span:first-child { font-family: 'Lyno', sans-serif; font-size: 14px; }
         .track-row:hover { color: #888; }
         .track-row.active { color: #fff; }
         .track-row:not(.active) { color: #444; }
+
+        /* Анімація появи нових треків */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .track-row.new-secret {
+            animation: slideIn 0.5s ease forwards;
+            background: rgba(255,255,255,0.05);
+        }
+
 
         /* 8. СКРІНСЕЙВЕР */
         #screensaver {
@@ -261,7 +285,7 @@
         <div class="glitch" data-text="PRODUCT">PRODUCT</div>
     </div>
 
-    <div class="cover-box">
+    <div class="cover-box" id="main-cover">
         <img src="1.jpg" class="cover-img" alt="cover">
     </div>
 
@@ -299,38 +323,70 @@
     const counterEl = document.getElementById('counter');
     const saver = document.getElementById('screensaver');
     const saverText = document.getElementById('saver-content');
+    const coverBox = document.getElementById('main-cover');
 
-    const songs = [
+    // Основний список треків
+    let songs = [
         "BIPP", "ELLE", "LEMONADE", "HARD", "MSMSMSM", "VYZEE", 
         "L.O.V.E.", "UNISIL", "GET HIGHER", "OOH", "JUST LIKE WE NEVER SAID GOODBYE"
     ];
 
+    // Секретні треки
+    const secretSongs = ["oops", "Burn Rubber"];
+    let secretsRevealed = false;
+
     let current = 0;
     let isLoaded = false; 
 
-    // ЗВУКИ ІНТЕРФЕЙСУ
+    // ЗВУКИ ІНТЕРФЕЙСУ (Синтезатор)
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     const ctx = new AudioContext();
 
-    function playHoverSound() {
+    function playHoverSound(frequency = 800, duration = 0.05) {
         if (ctx.state === 'suspended') ctx.resume();
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(800, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.05);
+        osc.frequency.setValueAtTime(frequency, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(frequency / 2, ctx.currentTime + duration);
         gain.gain.setValueAtTime(0.05, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.start();
-        osc.stop(ctx.currentTime + 0.05);
+        osc.stop(ctx.currentTime + duration);
     }
 
     // ВІБРАЦІЯ
-    function vibe() {
-        if (navigator.vibrate) navigator.vibrate(20);
+    function vibe(pattern = 20) {
+        if (navigator.vibrate) navigator.vibrate(pattern);
     }
+
+    // ЛОГІКА ВІДКРИТТЯ СЕКРЕТІВ
+    coverBox.addEventListener('click', () => {
+        if (secretsRevealed) {
+            // Якщо вже відкрито, просто звук і вібрація
+            vibe(50);
+            playHoverSound(400, 0.1);
+            return;
+        }
+
+        // Ефекти відкриття
+        vibe([100, 50, 100]); // Подвійна вібрація
+        playHoverSound(1200, 0.3); // Довший і вищий звук
+        
+        // Блимання обкладинки
+        coverBox.classList.add('secret-reveal');
+        setTimeout(() => coverBox.classList.remove('secret-reveal'), 300);
+
+        // Додаємо треки
+        songs = songs.concat(secretSongs);
+        secretsRevealed = true;
+        
+        // Перемальовуємо список
+        render(true); 
+    });
+
 
     // ЛОГІКА СКРІНСЕЙВЕРА
     let idleTime = 0;
@@ -385,11 +441,13 @@
         render(); // оновлюємо іконки
     }
 
-    function render() {
+    function render(showAnimation = false) {
         listEl.innerHTML = '';
         songs.forEach((name, i) => {
             const row = document.createElement('div');
-            row.className = `track-row ${i === current ? 'active' : ''}`;
+            // Додаємо клас 'new-secret' тільки для нових треків і тільки при відкритті
+            let secretClass = (showAnimation && i >= songs.length - secretSongs.length) ? 'new-secret' : '';
+            row.className = `track-row ${i === current ? 'active' : ''} ${secretClass}`;
             const num = (i + 1).toString().padStart(2, '0');
             
             // Іконка: Пауза якщо грає, Плей якщо стоїть
@@ -418,6 +476,7 @@
         counterEl.innerText = `${num} / ${total}`;
         document.title = `▶ ${name}`;
 
+        // Тут використовуємо index + 1, тому 12-й трек шукатиме 12.mp3
         audio.src = `${index + 1}.mp3`;
         audio.play();
         
