@@ -3,36 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOPHIE - PRODUCT (Gray Edition)</title>
+    <title>sophie - product (black edition)</title>
     <style>
         :root {
-            --accent: #ff85c1; /* ніжний рожевий з обкладинки */
-            --bg-gray: #2e2e2e; /* твій сірий фон */
-            --glass-white: rgba(255, 255, 255, 0.1);
+            --accent-color: #ffffff;
+            --bg-black: #000000;
+            --track-item-bg: rgba(255, 255, 255, 0.1);
         }
 
         body {
             margin: 0;
             padding: 20px;
-            background-color: var(--bg-gray);
+            background-color: var(--bg-black);
             color: #ffffff;
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
         }
 
-        /* контейнер для обкладинки */
-        .cover-wrapper {
-            width: 300px;
-            height: 300px;
-            margin-top: 20px;
-            margin-bottom: 30px;
-            border-radius: 30px;
+        /* обкладинка */
+        .cover-container {
+            width: 320px;
+            height: 320px;
+            margin: 20px 0 30px;
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 133, 193, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
         }
 
         .cover-img {
@@ -42,32 +41,29 @@
             display: block;
         }
 
-        .album-info {
+        .header-info {
             text-align: center;
             margin-bottom: 25px;
         }
 
-        .status-text {
-            color: var(--accent);
-            font-size: 11px;
+        .status-playing {
+            color: #888;
+            font-size: 10px;
             font-weight: 800;
-            letter-spacing: 2.5px;
+            letter-spacing: 3px;
             text-transform: uppercase;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
-        .album-name {
-            font-size: 22px;
+        .album-name-text {
+            font-size: 24px;
             font-weight: 900;
-            letter-spacing: 1px;
             text-transform: uppercase;
-            background: linear-gradient(to bottom, #fff, #bbb);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
         }
 
         /* список треків */
-        .tracklist {
+        .playlist-box {
             width: 100%;
             max-width: 360px;
             display: flex;
@@ -75,153 +71,142 @@
             gap: 10px;
         }
 
-        .track-item {
-            background: var(--glass-white);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            padding: 16px 20px;
-            border-radius: 18px;
+        .track-row {
+            background: var(--track-item-bg);
+            padding: 18px 25px;
+            border-radius: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            transition: 0.2s ease;
+            transition: 0.2s;
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .track-item.active {
+        .track-row.active {
             background: #ffffff;
-            color: #000;
-            transform: scale(1.02);
+            color: #000000;
         }
 
-        .track-name {
+        .track-title {
             font-weight: 700;
-            font-size: 14px;
+            font-size: 13px;
             text-transform: uppercase;
         }
 
-        /* повзунок */
-        .progress-box {
+        /* прогрес-бар */
+        .progress-wrapper {
             width: 100%;
             max-width: 360px;
             margin-bottom: 25px;
         }
 
-        .progress-container {
+        .progress-bg {
             width: 100%;
             height: 4px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 10px;
             cursor: pointer;
-            overflow: hidden;
         }
 
-        .progress-bar {
+        .progress-fill {
             height: 100%;
-            background: var(--accent);
+            background: var(--accent-color);
             width: 0%;
-            box-shadow: 0 0 10px var(--accent);
+            border-radius: 10px;
         }
     </style>
 </head>
 <body>
 
-    <div class="cover-wrapper">
-        <img src="./1.jpg" class="cover-img" alt="SOPHIE Cover" onerror="this.src='https://via.placeholder.com/300x300?text=SOPHIE'">
+    <div class="cover-container">
+        <img src="1.jpg" id="main-art" class="cover-img" alt="sophie album">
     </div>
 
-    <div class="album-info">
-        <div class="status-text" id="status">SOPHIE — PRODUCT</div>
-        <div class="album-name" id="current-track-name">BIPP</div>
+    <div class="header-info">
+        <div class="status-playing" id="playing-now">playing: bipp</div>
+        <div class="album-name-text">product</div>
     </div>
 
-    <div class="progress-box">
-        <div class="progress-container" id="progress-container">
-            <div class="progress-bar" id="progress-bar"></div>
+    <div class="progress-wrapper">
+        <div class="progress-bg" id="bar-bg">
+            <div class="progress-fill" id="bar-fill"></div>
         </div>
     </div>
 
-    <div class="tracklist" id="tracklist">
+    <div class="playlist-box" id="tracks-list">
         </div>
 
-    <audio id="audio"></audio>
+    <audio id="audio-player"></audio>
 
 <script>
-    const audio = document.getElementById('audio');
-    const tracklistEl = document.getElementById('tracklist');
-    const currentNameEl = document.getElementById('current-track-name');
-    const progressBar = document.getElementById('progress-bar');
-    const progressContainer = document.getElementById('progress-container');
+    const audio = document.getElementById('audio-player');
+    const list = document.getElementById('tracks-list');
+    const status = document.getElementById('playing-now');
+    const fill = document.getElementById('bar-fill');
+    const bg = document.getElementById('bar-bg');
 
-    // список за твоїм порядком
-    const tracks = [
-        "BIPP", "ELLE", "LEMONADE", "HARD", "MSMSMSM", "VYZEE", 
-        "L.O.V.E.", "UNISIL", "GET HIGHER", "OOH", "JUST LIKE WE NEVER SAID GOODBYE"
+    const songs = [
+        "bipp", "elle", "lemonade", "hard", "msmsmsm", "vyzee", 
+        "l.o.v.e.", "unisil", "get higher", "ooh", "just like we never said goodbye"
     ];
 
-    let currentIndex = 0;
+    let currentIdx = 0;
 
-    function renderTracks() {
-        tracklistEl.innerHTML = '';
-        tracks.forEach((name, i) => {
+    function draw() {
+        list.innerHTML = '';
+        songs.forEach((name, i) => {
             const div = document.createElement('div');
-            div.className = `track-item ${i === currentIndex ? 'active' : ''}`;
+            div.className = `track-row ${i === currentIdx ? 'active' : ''}`;
             div.innerHTML = `
-                <span class="track-name">${i + 1}. ${name}</span>
-                <span>${i === currentIndex ? '●' : '▶'}</span>
+                <span class="track-title">${i + 1}. ${name}</span>
+                <span>${i === currentIdx ? '■' : '▶'}</span>
             `;
-            div.onclick = () => playTrack(i);
-            tracklistEl.appendChild(div);
+            div.onclick = () => start(i);
+            list.appendChild(div);
         });
     }
 
-    function playTrack(index) {
-        currentIndex = index;
-        const name = tracks[index];
+    function start(idx) {
+        currentIdx = idx;
+        const name = songs[idx];
         
-        currentNameEl.innerText = name;
-        audio.src = `./${index + 1}.mp3`;
+        status.innerText = `playing: ${name}`;
+        audio.src = `${idx + 1}.mp3`;
         audio.play();
         
-        renderTracks();
-        updateMediaSession(name);
-    }
-
-    function updateMediaSession(name) {
+        draw();
+        
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: name,
-                artist: 'SOPHIE',
-                album: 'Product',
-                artwork: [{ src: './1.jpg', sizes: '512x512', type: 'image/jpeg' }]
+                artist: 'sophie',
+                album: 'product',
+                artwork: [{ src: '1.jpg', sizes: '512x512', type: 'image/jpeg' }]
             });
         }
     }
 
     audio.addEventListener('timeupdate', () => {
-        const percent = (audio.currentTime / audio.duration) * 100;
-        progressBar.style.width = `${percent || 0}%`;
+        const p = (audio.currentTime / audio.duration) * 100;
+        fill.style.width = `${p || 0}%`;
     });
 
-    progressContainer.addEventListener('click', (e) => {
-        audio.currentTime = (e.offsetX / progressContainer.clientWidth) * audio.duration;
+    bg.addEventListener('click', (e) => {
+        audio.currentTime = (e.offsetX / bg.clientWidth) * audio.duration;
     });
 
-    audio.addEventListener('ended', () => {
-        playTrack((currentIndex + 1) % tracks.length);
-    });
+    audio.addEventListener('ended', () => start((currentIdx + 1) % songs.length));
 
-    // ініціалізація
-    renderTracks();
-    audio.src = `./1.mp3`; // підготовка першого треку
+    // запуск
+    draw();
+    audio.src = `1.mp3`;
 
-    // керування кнопками
     if ('mediaSession' in navigator) {
         navigator.mediaSession.setActionHandler('play', () => audio.play());
         navigator.mediaSession.setActionHandler('pause', () => audio.pause());
-        navigator.mediaSession.setActionHandler('previoustrack', () => playTrack((currentIndex - 1 + tracks.length) % tracks.length));
-        navigator.mediaSession.setActionHandler('nexttrack', () => playTrack((currentIndex + 1) % tracks.length));
+        navigator.mediaSession.setActionHandler('previoustrack', () => start((currentIdx - 1 + songs.length) % songs.length));
+        navigator.mediaSession.setActionHandler('nexttrack', () => start((currentIdx + 1) % songs.length));
     }
 </script>
 
